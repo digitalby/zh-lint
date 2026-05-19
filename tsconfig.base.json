@@ -16,9 +16,6 @@
     "verbatimModuleSyntax": false,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test"]
+    "declaration": true
+  }
 }

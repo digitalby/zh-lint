@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { ConfigError, DEFAULT_INIT_CONFIG, findConfig, loadConfig } from './config.js';
 import { scan } from './core.js';
+import { PluginError, loadPlugins } from './plugin.js';
 import { format } from './report/index.js';
 import type { OutputFormat } from './types.js';
 
@@ -12,25 +13,32 @@ interface ParsedArgs {
   init: boolean;
   help: boolean;
   version: boolean;
+  pluginsOverride: string[] | null;
 }
 
-const USAGE = `zh-lint — Chinese script-contamination linter
+const USAGE = `locale-lint — compiler-error-grade localization linter
 
 Usage:
-  zh-lint <root>                     Scan <root> for Hans/Hant contamination.
-  zh-lint --init                     Write a default .zh-lint.yml in the current directory.
+  locale-lint <root>                  Scan <root> for locale contamination.
+  locale-lint --init                  Write a default .locale-lint.yml here.
 
 Options:
-  --config=<path>                    Use a specific config file (default: .zh-lint.yml searched upward).
-  --no-config                        Ignore any .zh-lint.yml and use built-in defaults.
-  --format=<xcode|github|plain|json> Output format (default: plain).
-  --help, -h                         Show this message.
-  --version, -V                      Print version and exit.
+  --config=<path>                     Use a specific config file (default: .locale-lint.yml or .zh-lint.yml searched upward).
+  --no-config                         Ignore any config file.
+  --format=<xcode|github|plain|json>  Output format (default: plain).
+  --plugin=<pkg>                      Explicit plugin package. Repeatable. Overrides config + auto-discovery.
+  --help, -h                          Show this message.
+  --version, -V                       Print version and exit.
+
+Plugin resolution order:
+  1. --plugin flags (highest priority)
+  2. \`plugins:\` key in the config file
+  3. Auto-discovered @digitalby/locale-lint-* packages in node_modules
 
 Exit codes:
   0  Clean.
   1  One or more violations found.
-  2  Configuration or IO error.
+  2  Configuration, plugin, or IO error.
 `;
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -41,14 +49,17 @@ function parseArgs(argv: string[]): ParsedArgs {
     init: false,
     help: false,
     version: false,
+    pluginsOverride: null,
   };
   let positional: string | null = null;
+  const pluginsFromCli: string[] = [];
   for (const arg of argv) {
     if (arg === '--help' || arg === '-h') result.help = true;
     else if (arg === '--version' || arg === '-V') result.version = true;
     else if (arg === '--init') result.init = true;
     else if (arg === '--no-config') result.configPath = null;
     else if (arg.startsWith('--config=')) result.configPath = arg.slice('--config='.length);
+    else if (arg.startsWith('--plugin=')) pluginsFromCli.push(arg.slice('--plugin='.length));
     else if (arg.startsWith('--format=')) {
       const v = arg.slice('--format='.length);
       if (v !== 'xcode' && v !== 'github' && v !== 'plain' && v !== 'json') {
@@ -64,6 +75,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     }
   }
   if (positional !== null) result.root = positional;
+  if (pluginsFromCli.length > 0) result.pluginsOverride = pluginsFromCli;
   return result;
 }
 
@@ -78,17 +90,17 @@ function readVersion(): string {
       }
     }
   } catch {
-    // fall through
+    /* fall through */
   }
   return 'unknown';
 }
 
-export function main(argv: string[]): number {
+export async function main(argv: string[]): Promise<number> {
   let args: ParsedArgs;
   try {
     args = parseArgs(argv);
   } catch (e) {
-    process.stderr.write(`zh-lint: ${(e as Error).message}\n\n${USAGE}`);
+    process.stderr.write(`locale-lint: ${(e as Error).message}\n\n${USAGE}`);
     return 2;
   }
   if (args.help) {
@@ -100,9 +112,9 @@ export function main(argv: string[]): number {
     return 0;
   }
   if (args.init) {
-    const target = path.resolve('.zh-lint.yml');
+    const target = path.resolve('.locale-lint.yml');
     if (fs.existsSync(target)) {
-      process.stderr.write(`zh-lint: ${target} already exists; refusing to overwrite\n`);
+      process.stderr.write(`locale-lint: ${target} already exists; refusing to overwrite\n`);
       return 2;
     }
     fs.writeFileSync(target, DEFAULT_INIT_CONFIG, 'utf8');
@@ -117,7 +129,7 @@ export function main(argv: string[]): number {
   } else {
     configPath = path.resolve(args.configPath);
     if (!fs.existsSync(configPath)) {
-      process.stderr.write(`zh-lint: config file not found: ${configPath}\n`);
+      process.stderr.write(`locale-lint: config file not found: ${configPath}\n`);
       return 2;
     }
   }
@@ -126,15 +138,26 @@ export function main(argv: string[]): number {
     config = loadConfig(configPath);
   } catch (e) {
     if (e instanceof ConfigError) {
-      process.stderr.write(`zh-lint: ${e.message}\n`);
+      process.stderr.write(`locale-lint: ${e.message}\n`);
       return 2;
     }
     throw e;
   }
-  const result = scan(args.root, config);
+  const pluginNames = args.pluginsOverride ?? config.plugins;
+  let plugins;
+  try {
+    plugins = await loadPlugins(pluginNames, path.resolve(args.root), import.meta.url);
+  } catch (e) {
+    if (e instanceof PluginError) {
+      process.stderr.write(`locale-lint: ${e.message}\n`);
+      return 2;
+    }
+    throw e;
+  }
+  const result = scan(args.root, config, plugins);
   if (result.parseErrors.length > 0) {
     for (const pe of result.parseErrors) {
-      process.stderr.write(`zh-lint: parse error in ${pe.file}: ${pe.message}\n`);
+      process.stderr.write(`locale-lint: parse error in ${pe.file}: ${pe.message}\n`);
     }
   }
   if (result.violations.length === 0) {
@@ -150,7 +173,14 @@ export function main(argv: string[]): number {
 const isDirectInvocation =
   import.meta.url === `file://${process.argv[1]}` ||
   process.argv[1]?.endsWith('cli.js') === true ||
+  process.argv[1]?.endsWith('locale-lint') === true ||
   process.argv[1]?.endsWith('zh-lint') === true;
 if (isDirectInvocation) {
-  process.exit(main(process.argv.slice(2)));
+  main(process.argv.slice(2)).then(
+    (code) => process.exit(code),
+    (err) => {
+      process.stderr.write(`locale-lint: ${err instanceof Error ? err.stack ?? err.message : String(err)}\n`);
+      process.exit(2);
+    },
+  );
 }

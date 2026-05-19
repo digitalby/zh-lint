@@ -1,5 +1,3 @@
-export type Script = 'simplified' | 'traditional';
-
 export type OutputFormat = 'xcode' | 'github' | 'plain' | 'json';
 
 export interface StringEntry {
@@ -14,20 +12,23 @@ export interface Violation {
   line: number;
   col: number;
   key: string;
-  char: string;
-  expectedScript: Script;
-  actualScriptHint: Script;
+  pluginId: string;
+  variantExpected: string;
+  variantHint?: string;
+  offending: string;
   message: string;
 }
 
 export interface Config {
-  locales: Record<string, Script>;
+  locales: Record<string, string>;
   ignore: string[];
   allowStrings: Set<string>;
   allowChars: Set<string>;
+  plugins: string[] | null;
 }
 
 export interface ResolvedFile {
   path: string;
-  expectedScript: Script;
+  variant: string;
+  pluginId: string;
 }

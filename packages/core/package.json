@@ -1,0 +1,67 @@
+{
+  "name": "@digitalby/locale-lint",
+  "version": "0.2.0",
+  "description": "Compiler-error-grade localization linter. Pluggable language-family detectors catch script contamination (Hans vs Hant, Russian-in-Belarusian, …) and vocabulary leakage (en-US-in-en-GB, …) before they ship.",
+  "type": "module",
+  "bin": {
+    "locale-lint": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
+  },
+  "keywords": [
+    "localization",
+    "l10n",
+    "i18n",
+    "lint",
+    "ios",
+    "xcode",
+    "android",
+    "strings",
+    "chinese",
+    "cyrillic",
+    "arabic",
+    "baltic",
+    "romance",
+    "english"
+  ],
+  "author": "digitalby <yury@digitalby.me>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitalby/zh-lint.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalby/zh-lint/issues"
+  },
+  "homepage": "https://github.com/digitalby/zh-lint#readme",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "picomatch": "^4.0.2",
+    "yaml": "^2.6.1"
+  }
+}

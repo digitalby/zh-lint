@@ -1,0 +1,59 @@
+{
+  "name": "@digitalby/locale-lint-chinese",
+  "version": "0.1.0",
+  "description": "Chinese (Simplified vs Traditional) script-contamination plugin for @digitalby/locale-lint. OpenCC-backed character-exclusivity detection across zh-Hans / zh-Hant / zh-HK / zh-TW / zh-MO / zh-CN / zh-SG locales.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
+  },
+  "keywords": [
+    "chinese",
+    "simplified",
+    "traditional",
+    "opencc",
+    "locale-lint-plugin",
+    "ios",
+    "xcode",
+    "localization"
+  ],
+  "author": "digitalby <yury@digitalby.me>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitalby/zh-lint.git",
+    "directory": "packages/set-chinese"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalby/zh-lint/issues"
+  },
+  "homepage": "https://github.com/digitalby/zh-lint/blob/main/docs/sets/chinese.md",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@digitalby/locale-lint": "^0.2.0"
+  },
+  "dependencies": {
+    "opencc-js": "^1.0.5"
+  },
+  "devDependencies": {
+    "@digitalby/locale-lint": "*"
+  }
+}

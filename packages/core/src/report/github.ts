@@ -8,7 +8,9 @@ export function formatGithub(violations: Violation[]): string {
   return violations
     .map(
       (v) =>
-        `::error file=${escape(v.file)},line=${v.line},col=${v.col}::${escape(`zh-lint: ${v.message}`)}`,
+        `::error file=${escape(v.file)},line=${v.line},col=${v.col}::${escape(
+          `locale-lint(${v.pluginId}): ${v.message}`,
+        )}`,
     )
     .join('\n');
 }

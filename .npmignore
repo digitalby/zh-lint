@@ -1,7 +1,0 @@
-src/
-test/
-docs/
-.github/
-tsconfig.json
-.gitignore
-vitest.config.ts

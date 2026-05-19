@@ -1,52 +1,27 @@
 {
-  "name": "@digitalby/zh-lint",
-  "version": "0.1.1",
-  "description": "Lint Chinese localization files for Simplified/Traditional script contamination",
+  "name": "locale-lint-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Monorepo for @digitalby/locale-lint and its language-family plugins.",
   "type": "module",
-  "bin": {
-    "zh-lint": "./dist/cli.js"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "build": "tsup",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "tsc --noEmit",
-    "prepublishOnly": "npm run lint && npm run test && npm run build"
+    "build": "npm run build -w @digitalby/locale-lint && npm run build -w @digitalby/locale-lint-chinese",
+    "build:core": "npm run build -w @digitalby/locale-lint",
+    "lint": "npm run lint -w @digitalby/locale-lint && npm run lint -w @digitalby/locale-lint-chinese",
+    "test": "npm run build:core && npm run test -w @digitalby/locale-lint && npm run test -w @digitalby/locale-lint-chinese",
+    "publish:all": "npm publish --workspaces --access public"
   },
-  "keywords": [
-    "chinese",
-    "localization",
-    "l10n",
-    "i18n",
-    "lint",
-    "simplified",
-    "traditional",
-    "opencc",
-    "ios",
-    "xcode"
-  ],
   "author": "digitalby <yury@digitalby.me>",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/digitalby/zh-lint.git"
   },
-  "bugs": {
-    "url": "https://github.com/digitalby/zh-lint/issues"
-  },
-  "homepage": "https://github.com/digitalby/zh-lint#readme",
   "engines": {
     "node": ">=20"
-  },
-  "dependencies": {
-    "opencc-js": "^1.0.5",
-    "picomatch": "^4.0.2",
-    "yaml": "^2.6.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -1,5 +1,5 @@
-name: 'zh-lint'
-description: 'Lint Chinese localization files for Simplified/Traditional script contamination'
+name: 'locale-lint'
+description: 'Compiler-error-grade localization linter. Catches script contamination (Hans-vs-Hant, Russian-in-Belarusian, ...) and vocabulary leakage (en-US-in-en-GB, ...) before they ship.'
 author: 'digitalby'
 branding:
   icon: 'check-circle'
@@ -11,20 +11,20 @@ inputs:
     required: false
     default: '.'
   config:
-    description: 'Path to a .zh-lint.yml config file (optional)'
+    description: 'Path to a .locale-lint.yml config file (optional; .zh-lint.yml accepted as fallback)'
     required: false
   format:
     description: 'Output format (xcode, github, plain, json)'
     required: false
     default: 'github'
   version:
-    description: 'zh-lint version to run (npm dist-tag or semver)'
+    description: 'locale-lint core version'
     required: false
     default: 'latest'
-  package:
-    description: 'npm package name (override only for forks)'
+  plugins:
+    description: 'Space-separated list of plugin packages to install (e.g. "@digitalby/locale-lint-chinese @digitalby/locale-lint-cyrillic"). At least one is required.'
     required: false
-    default: '@digitalby/zh-lint'
+    default: '@digitalby/locale-lint-chinese'
 
 runs:
   using: 'composite'
@@ -33,17 +33,21 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-    - name: Run zh-lint
+    - name: Run locale-lint
       shell: bash
       env:
-        ZH_LINT_ROOT: ${{ inputs.root }}
-        ZH_LINT_FORMAT: ${{ inputs.format }}
-        ZH_LINT_CONFIG: ${{ inputs.config }}
-        ZH_LINT_VERSION: ${{ inputs.version }}
-        ZH_LINT_PACKAGE: ${{ inputs.package }}
+        LL_ROOT: ${{ inputs.root }}
+        LL_FORMAT: ${{ inputs.format }}
+        LL_CONFIG: ${{ inputs.config }}
+        LL_VERSION: ${{ inputs.version }}
+        LL_PLUGINS: ${{ inputs.plugins }}
       run: |
-        args=("$ZH_LINT_ROOT" "--format=$ZH_LINT_FORMAT")
-        if [ -n "$ZH_LINT_CONFIG" ]; then
-          args+=("--config=$ZH_LINT_CONFIG")
+        npm_args=("-p" "@digitalby/locale-lint@${LL_VERSION}")
+        for p in ${LL_PLUGINS}; do
+          npm_args+=("-p" "$p")
+        done
+        cli_args=("$LL_ROOT" "--format=$LL_FORMAT")
+        if [ -n "$LL_CONFIG" ]; then
+          cli_args+=("--config=$LL_CONFIG")
         fi
-        npx --yes "$ZH_LINT_PACKAGE@$ZH_LINT_VERSION" "${args[@]}"
+        npx --yes "${npm_args[@]}" locale-lint "${cli_args[@]}"
