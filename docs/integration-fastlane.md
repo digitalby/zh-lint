@@ -4,7 +4,7 @@ Drop a `zh_lint` lane into your `Fastfile`:
 
 ```ruby
 lane :zh_lint do
-  sh("npx --yes zh-lint@latest #{File.expand_path('..', __dir__)} --format=plain")
+  sh("npx --yes @digitalby/zh-lint@latest #{File.expand_path('..', __dir__)} --format=plain")
 end
 ```
 

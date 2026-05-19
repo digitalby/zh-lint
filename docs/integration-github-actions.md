@@ -45,7 +45,7 @@ If you'd rather pin Node yourself:
 - uses: actions/setup-node@v4
   with:
     node-version: '20'
-- run: npx --yes zh-lint@0.1.0 . --format=github
+- run: npx --yes @digitalby/zh-lint@0.1.0 . --format=github
 ```
 
 ## Pre-commit hook
@@ -56,7 +56,7 @@ If you'd rather pin Node yourself:
   hooks:
     - id: zh-lint
       name: zh-lint
-      entry: npx --yes zh-lint@latest . --format=plain
+      entry: npx --yes @digitalby/zh-lint@latest . --format=plain
       language: system
       pass_filenames: false
       files: '\.(strings)$'

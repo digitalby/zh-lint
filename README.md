@@ -3,7 +3,7 @@
 > Compiler-error-grade lint for Chinese localizations. Catches Simplified characters that leaked into a Traditional locale (and vice versa) before they ship.
 
 [![CI](https://github.com/digitalby/zh-lint/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalby/zh-lint/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/zh-lint.svg)](https://www.npmjs.com/package/zh-lint)
+[![npm](https://img.shields.io/npm/v/@digitalby/zh-lint.svg)](https://www.npmjs.com/package/@digitalby/zh-lint)
 
 ## The problem
 
@@ -29,11 +29,13 @@ Shared characters (most of the CJK Unified Ideographs block) don't change during
 
 ```sh
 # One-off, no install:
-npx --yes zh-lint /path/to/repo
+npx --yes @digitalby/zh-lint /path/to/repo
 
 # As a dev dependency:
-npm install --save-dev zh-lint
+npm install --save-dev @digitalby/zh-lint
 ```
+
+> The package ships as `@digitalby/zh-lint` on npm but the CLI binary is `zh-lint`. After install/`npx`, run it as `zh-lint <root>`.
 
 ## Usage
 
@@ -113,7 +115,7 @@ if ! command -v npx >/dev/null 2>&1; then
   echo "warning: zh-lint skipped — install Node (brew install node)"
   exit 0
 fi
-npx --yes zh-lint@latest "$SRCROOT" --format=xcode
+npx --yes @digitalby/zh-lint@latest "$SRCROOT" --format=xcode
 ```
 
 The `xcode` format writes errors to stderr in the form Xcode parses, so violations appear directly in the Issue Navigator.

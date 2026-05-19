@@ -23,7 +23,7 @@ if ! command -v npx >/dev/null 2>&1; then
   echo "warning: zh-lint skipped — install Node (brew install node) to enable Chinese localization linting"
   exit 0
 fi
-npx --yes zh-lint@latest "$SRCROOT" --format=xcode
+npx --yes @digitalby/zh-lint@latest "$SRCROOT" --format=xcode
 ```
 
 ## Step 2: Pin the version (recommended)
@@ -31,7 +31,7 @@ npx --yes zh-lint@latest "$SRCROOT" --format=xcode
 Bump `latest` to a specific version when you cut a release branch, so a wild npm publish can't change your build:
 
 ```sh
-npx --yes zh-lint@0.1.0 "$SRCROOT" --format=xcode
+npx --yes @digitalby/zh-lint@0.1.0 "$SRCROOT" --format=xcode
 ```
 
 ## Step 3: (Optional) Cache between clean builds

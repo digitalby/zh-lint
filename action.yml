@@ -21,6 +21,10 @@ inputs:
     description: 'zh-lint version to run (npm dist-tag or semver)'
     required: false
     default: 'latest'
+  package:
+    description: 'npm package name (override only for forks)'
+    required: false
+    default: '@digitalby/zh-lint'
 
 runs:
   using: 'composite'
@@ -36,9 +40,10 @@ runs:
         ZH_LINT_FORMAT: ${{ inputs.format }}
         ZH_LINT_CONFIG: ${{ inputs.config }}
         ZH_LINT_VERSION: ${{ inputs.version }}
+        ZH_LINT_PACKAGE: ${{ inputs.package }}
       run: |
         args=("$ZH_LINT_ROOT" "--format=$ZH_LINT_FORMAT")
         if [ -n "$ZH_LINT_CONFIG" ]; then
           args+=("--config=$ZH_LINT_CONFIG")
         fi
-        npx --yes "zh-lint@$ZH_LINT_VERSION" "${args[@]}"
+        npx --yes "$ZH_LINT_PACKAGE@$ZH_LINT_VERSION" "${args[@]}"
