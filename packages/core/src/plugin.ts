@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import type { ParsedStringEntry } from './parsers/strings.js';
 import type { Violation } from './types.js';
@@ -64,9 +63,9 @@ async function importPlugin(
   cwd: string,
   callerUrl: string,
 ): Promise<LocalePlugin> {
-  let resolved: string;
+  let importTarget: string;
   try {
-    resolved = resolveFrom(name, cwd, callerUrl);
+    importTarget = resolveImportTarget(name, cwd, callerUrl);
   } catch (e) {
     throw new PluginError(
       `Failed to resolve plugin "${name}": ${(e as Error).message}. ` +
@@ -75,7 +74,7 @@ async function importPlugin(
   }
   let mod: unknown;
   try {
-    mod = await import(pathToFileURL(resolved).href);
+    mod = await import(importTarget);
   } catch (e) {
     throw new PluginError(`Failed to import plugin "${name}": ${(e as Error).message}`);
   }
@@ -101,17 +100,66 @@ function isLocalePlugin(v: unknown): v is LocalePlugin {
   );
 }
 
-function resolveFrom(name: string, cwd: string, callerUrl: string): string {
-  const candidates = [createRequire(path.join(cwd, 'package.json')), createRequire(callerUrl)];
-  let lastErr: unknown;
-  for (const req of candidates) {
-    try {
-      return req.resolve(name);
-    } catch (e) {
-      lastErr = e;
+function resolveImportTarget(name: string, cwd: string, callerUrl: string): string {
+  if (path.isAbsolute(name)) return pathToFileURL(name).href;
+  const callerDir = path.dirname(new URL(callerUrl).pathname);
+  const baseDirs = [cwd, callerDir];
+  for (const baseDir of baseDirs) {
+    let dir = baseDir;
+    while (true) {
+      const candidate = path.join(dir, 'node_modules', name);
+      const pkgJson = path.join(candidate, 'package.json');
+      if (fs.existsSync(pkgJson)) {
+        const entry = readPackageEntry(pkgJson);
+        if (entry !== null) return pathToFileURL(path.join(candidate, entry)).href;
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
     }
   }
-  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+  throw new Error(`Cannot find package "${name}" in node_modules from ${baseDirs.join(' or ')}`);
+}
+
+interface ExportsConditions {
+  import?: string;
+  default?: string;
+  node?: string;
+  require?: string;
+}
+
+function readPackageEntry(pkgJsonPath: string): string | null {
+  let raw: string;
+  try {
+    raw = fs.readFileSync(pkgJsonPath, 'utf8');
+  } catch {
+    return null;
+  }
+  let pkg: Record<string, unknown>;
+  try {
+    pkg = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+  const exportsField = pkg.exports;
+  if (typeof exportsField === 'string') return exportsField;
+  if (exportsField !== null && typeof exportsField === 'object') {
+    const exportsObj = exportsField as Record<string, unknown>;
+    const dot = exportsObj['.'];
+    if (typeof dot === 'string') return dot;
+    if (dot !== null && typeof dot === 'object') {
+      const conditions = dot as ExportsConditions;
+      const picked = conditions.import ?? conditions.default ?? conditions.node ?? conditions.require;
+      if (typeof picked === 'string') return picked;
+    }
+    const topImport = exportsObj.import;
+    if (typeof topImport === 'string') return topImport;
+    const topDefault = exportsObj.default;
+    if (typeof topDefault === 'string') return topDefault;
+  }
+  if (typeof pkg.module === 'string') return pkg.module;
+  if (typeof pkg.main === 'string') return pkg.main;
+  return null;
 }
 
 function discoverPlugins(cwd: string, callerUrl: string): string[] {
