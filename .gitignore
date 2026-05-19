@@ -4,3 +4,6 @@ dist/
 .DS_Store
 .vitest-cache/
 coverage/
+
+# Local-dev tarballs from npm pack
+packages/*/*.tgz
