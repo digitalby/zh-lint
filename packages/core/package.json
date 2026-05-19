@@ -1,6 +1,6 @@
 {
   "name": "@digitalby/locale-lint",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Compiler-error-grade localization linter. Pluggable language-family detectors catch script contamination (Hans vs Hant, Russian-in-Belarusian, …) and vocabulary leakage (en-US-in-en-GB, …) before they ship.",
   "type": "module",
   "bin": {
@@ -61,6 +61,8 @@
     "node": ">=20"
   },
   "dependencies": {
+    "adm-zip": "^0.5.17",
+    "bplist-parser": "^0.3.2",
     "picomatch": "^4.0.2",
     "yaml": "^2.6.1"
   }

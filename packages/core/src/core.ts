@@ -1,5 +1,11 @@
 import * as fs from 'node:fs';
-import { decodeStringsBuffer, parseStrings, type ParsedStringEntry } from './parsers/strings.js';
+import {
+  decodeStringsBuffer,
+  isBinaryPlist,
+  parseBinaryPlistStrings,
+  parseStrings,
+  type ParsedStringEntry,
+} from './parsers/strings.js';
 import type { LocalePlugin } from './plugin.js';
 import type { Config, Violation } from './types.js';
 import { walk } from './walker.js';
@@ -62,16 +68,28 @@ export function scan(
 function parseFileCached(filePath: string, cache: Map<string, FileCache>): FileCache {
   const existing = cache.get(filePath);
   if (existing !== undefined) return existing;
-  let source: string;
+  let buf: Buffer;
   try {
-    const buf = fs.readFileSync(filePath);
-    source = decodeStringsBuffer(buf);
+    buf = fs.readFileSync(filePath);
   } catch (e) {
     const result: FileCache = { entries: null, error: (e as Error).message };
     cache.set(filePath, result);
     return result;
   }
+  if (isBinaryPlist(buf)) {
+    try {
+      const entries = parseBinaryPlistStrings(buf);
+      const result: FileCache = { entries, error: null };
+      cache.set(filePath, result);
+      return result;
+    } catch (e) {
+      const result: FileCache = { entries: null, error: (e as Error).message };
+      cache.set(filePath, result);
+      return result;
+    }
+  }
   try {
+    const source = decodeStringsBuffer(buf);
     const entries = parseStrings(source);
     const result: FileCache = { entries, error: null };
     cache.set(filePath, result);

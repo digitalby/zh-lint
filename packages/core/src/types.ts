@@ -1,4 +1,11 @@
-export type OutputFormat = 'xcode' | 'github' | 'plain' | 'json';
+export type OutputFormat = 'xcode' | 'github' | 'plain' | 'json' | 'markdown';
+
+export interface BundleMetadata {
+  name: string;
+  bundleId: string;
+  version: string;
+  build: string;
+}
 
 export interface StringEntry {
   key: string;

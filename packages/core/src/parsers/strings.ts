@@ -1,3 +1,4 @@
+import * as bplistParser from 'bplist-parser';
 import type { StringEntry } from '../types.js';
 
 interface Cursor {
@@ -214,4 +215,56 @@ export function decodeStringsBuffer(buf: Buffer): string {
     return buf.toString('utf8', 3);
   }
   return buf.toString('utf8');
+}
+
+export function isBinaryPlist(buf: Buffer): boolean {
+  return (
+    buf.length >= 8 &&
+    buf[0] === 0x62 && // b
+    buf[1] === 0x70 && // p
+    buf[2] === 0x6c && // l
+    buf[3] === 0x69 && // i
+    buf[4] === 0x73 && // s
+    buf[5] === 0x74 && // t
+    buf[6] === 0x30 && // 0
+    buf[7] === 0x30 //   0
+  );
+}
+
+export function parseBinaryPlistStrings(buf: Buffer): ParsedStringEntry[] {
+  let parsed: unknown;
+  try {
+    const result = (bplistParser as unknown as {
+      parseBuffer: (b: Buffer) => unknown[];
+    }).parseBuffer(buf);
+    parsed = result[0];
+  } catch (e) {
+    throw new Error(`Failed to parse binary plist: ${(e as Error).message}`);
+  }
+  if (parsed === null || parsed === undefined || typeof parsed !== 'object') {
+    throw new Error('Binary plist did not decode to a dictionary');
+  }
+  const dict = parsed as Record<string, unknown>;
+  const entries: ParsedStringEntry[] = [];
+  let line = 1;
+  for (const key of Object.keys(dict)) {
+    const rawValue = dict[key];
+    if (typeof rawValue !== 'string') continue;
+    const value = rawValue;
+    const valueChars: string[] = [];
+    for (const cp of value) valueChars.push(cp);
+    const charLines = new Array(valueChars.length).fill(line) as number[];
+    const charCols = new Array(valueChars.length).fill(1) as number[];
+    entries.push({
+      key,
+      value,
+      valueLine: line,
+      valueCol: 1,
+      valueChars,
+      charLines,
+      charCols,
+    });
+    line += 1;
+  }
+  return entries;
 }

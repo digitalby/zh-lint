@@ -1,10 +1,19 @@
 import type { OutputFormat, Violation } from '../types.js';
 import { formatGithub } from './github.js';
 import { formatJson } from './json.js';
+import { formatMarkdown, type MarkdownContext } from './markdown.js';
 import { formatPlain } from './plain.js';
 import { formatXcode } from './xcode.js';
 
-export function format(violations: Violation[], outputFormat: OutputFormat): string {
+export interface FormatOptions {
+  markdown?: MarkdownContext;
+}
+
+export function format(
+  violations: Violation[],
+  outputFormat: OutputFormat,
+  options: FormatOptions = {},
+): string {
   switch (outputFormat) {
     case 'xcode':
       return formatXcode(violations);
@@ -14,5 +23,10 @@ export function format(violations: Violation[], outputFormat: OutputFormat): str
       return formatPlain(violations);
     case 'json':
       return formatJson(violations);
+    case 'markdown':
+      if (!options.markdown) {
+        throw new Error('markdown format requires a MarkdownContext');
+      }
+      return formatMarkdown(violations, options.markdown);
   }
 }

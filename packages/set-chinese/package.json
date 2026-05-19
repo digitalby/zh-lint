@@ -1,6 +1,6 @@
 {
   "name": "@digitalby/locale-lint-chinese",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Chinese (Simplified vs Traditional) script-contamination plugin for @digitalby/locale-lint. OpenCC-backed character-exclusivity detection across zh-Hans / zh-Hant / zh-HK / zh-TW / zh-MO / zh-CN / zh-SG locales.",
   "type": "module",
   "main": "./dist/index.js",
@@ -48,7 +48,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@digitalby/locale-lint": "^0.2.0 || ^0.3.0"
+    "@digitalby/locale-lint": "^0.2.0 || ^0.3.0 || ^0.4.0"
   },
   "dependencies": {
     "opencc-js": "^1.0.5"
