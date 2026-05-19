@@ -1,0 +1,3 @@
+/* Hans file containing Traditional brand chars 髮 and 體 — permitted via config. */
+"brand.name" = "髮體美容";
+"app.title" = "时钟小组件";

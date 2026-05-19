@@ -1,0 +1,5 @@
+/* Clean Traditional Chinese — should pass. */
+"app.title" = "時鐘小工具";
+"action.activate" = "啟動";
+"settings.about" = "關於";
+"settings.theme" = "主題";

@@ -1,0 +1,44 @@
+name: 'zh-lint'
+description: 'Lint Chinese localization files for Simplified/Traditional script contamination'
+author: 'digitalby'
+branding:
+  icon: 'check-circle'
+  color: 'red'
+
+inputs:
+  root:
+    description: 'Root directory to scan'
+    required: false
+    default: '.'
+  config:
+    description: 'Path to a .zh-lint.yml config file (optional)'
+    required: false
+  format:
+    description: 'Output format (xcode, github, plain, json)'
+    required: false
+    default: 'github'
+  version:
+    description: 'zh-lint version to run (npm dist-tag or semver)'
+    required: false
+    default: 'latest'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Run zh-lint
+      shell: bash
+      env:
+        ZH_LINT_ROOT: ${{ inputs.root }}
+        ZH_LINT_FORMAT: ${{ inputs.format }}
+        ZH_LINT_CONFIG: ${{ inputs.config }}
+        ZH_LINT_VERSION: ${{ inputs.version }}
+      run: |
+        args=("$ZH_LINT_ROOT" "--format=$ZH_LINT_FORMAT")
+        if [ -n "$ZH_LINT_CONFIG" ]; then
+          args+=("--config=$ZH_LINT_CONFIG")
+        fi
+        npx --yes "zh-lint@$ZH_LINT_VERSION" "${args[@]}"

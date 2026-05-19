@@ -1,0 +1,58 @@
+{
+  "name": "zh-lint",
+  "version": "0.1.0",
+  "description": "Lint Chinese localization files for Simplified/Traditional script contamination",
+  "type": "module",
+  "bin": {
+    "zh-lint": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
+  },
+  "keywords": [
+    "chinese",
+    "localization",
+    "l10n",
+    "i18n",
+    "lint",
+    "simplified",
+    "traditional",
+    "opencc",
+    "ios",
+    "xcode"
+  ],
+  "author": "digitalby <yury@digitalby.me>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitalby/zh-lint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalby/zh-lint/issues"
+  },
+  "homepage": "https://github.com/digitalby/zh-lint#readme",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "opencc-js": "^1.0.5",
+    "picomatch": "^4.0.2",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/picomatch": "^3.0.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.6"
+  }
+}

@@ -1,0 +1,5 @@
+/* Clean Simplified Chinese — should pass. */
+"app.title" = "时钟小组件";
+"action.activate" = "激活";
+"settings.about" = "关于";
+"settings.theme" = "主题";
