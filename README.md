@@ -100,7 +100,7 @@ Run `zh-lint --init` to drop a starter file in the current directory.
 ### One-liner: GitHub Actions
 
 ```yaml
-- uses: digitalby/zh-lint@v0.1.0
+- uses: digitalby/zh-lint@v0.1.1
   with:
     root: '.'
     format: 'github'

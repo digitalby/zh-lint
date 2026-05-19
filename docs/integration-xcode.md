@@ -31,7 +31,7 @@ npx --yes @digitalby/zh-lint@latest "$SRCROOT" --format=xcode
 Bump `latest` to a specific version when you cut a release branch, so a wild npm publish can't change your build:
 
 ```sh
-npx --yes @digitalby/zh-lint@0.1.0 "$SRCROOT" --format=xcode
+npx --yes @digitalby/zh-lint@0.1.1 "$SRCROOT" --format=xcode
 ```
 
 ## Step 3: (Optional) Cache between clean builds

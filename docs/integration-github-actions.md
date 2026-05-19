@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: digitalby/zh-lint@v0.1.0
+      - uses: digitalby/zh-lint@v0.1.1
         with:
           root: '.'
           format: 'github'
@@ -45,7 +45,7 @@ If you'd rather pin Node yourself:
 - uses: actions/setup-node@v4
   with:
     node-version: '20'
-- run: npx --yes @digitalby/zh-lint@0.1.0 . --format=github
+- run: npx --yes @digitalby/zh-lint@0.1.1 . --format=github
 ```
 
 ## Pre-commit hook

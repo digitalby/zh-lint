@@ -1,6 +1,6 @@
 {
   "name": "@digitalby/zh-lint",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lint Chinese localization files for Simplified/Traditional script contamination",
   "type": "module",
   "bin": {
