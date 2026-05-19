@@ -48,7 +48,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@digitalby/locale-lint": "^0.2.0"
+    "@digitalby/locale-lint": "^0.2.0 || ^0.3.0"
   },
   "dependencies": {
     "opencc-js": "^1.0.5"
